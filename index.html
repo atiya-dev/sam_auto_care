@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAMs Auto Wrecking | Quality Used Auto Parts & Salvage</title>
+    <script>
+      // Prevent libraries from crashing when trying to override read-only fetch
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var desc = Object.getOwnPropertyDescriptor(window, 'fetch');
+          
+          // Only attempt to patch if it's truly restricted (has getter but no setter/not writable)
+          if (desc && !desc.writable && !desc.set) {
+            console.log('Patching fetch to allow overrides...');
+            
+            var patchSucceeded = false;
+            if (desc.configurable) {
+              try {
+                Object.defineProperty(window, 'fetch', {
+                  configurable: true,
+                  enumerable: true,
+                  get: function() { return originalFetch; },
+                  set: function(v) { 
+                    console.warn('Blocked attempt to override window.fetch, but allowing it to succeed internally');
+                    originalFetch = v; 
+                  }
+                });
+                patchSucceeded = true;
+              } catch (e1) {
+                console.warn('Object.defineProperty failed for fetch patch');
+              }
+            }
+            
+            if (!patchSucceeded && typeof window.__defineSetter__ === 'function') {
+              try {
+                window.__defineSetter__('fetch', function(v) { 
+                  console.warn('Blocked attempt to override window.fetch using __defineSetter__');
+                  originalFetch = v; 
+                });
+                patchSucceeded = true;
+              } catch (e2) {
+                console.warn('__defineSetter__ failed for fetch patch');
+              }
+            }
+          }
+        } catch (e) {
+          // Swallow errors to avoid crashing the main app if patching fails
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
